@@ -35,6 +35,8 @@ jobs:
           npx prisma generate
 
       - name: Run Server Tests
+        env:
+          JWT_SECRET: test-secret
         run: |
           cd server
           npm test
