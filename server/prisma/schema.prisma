@@ -1,0 +1,129 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  passwordHash     String
+  name             String
+  xp               Int      @default(0)
+  level            Int      @default(1)
+  streak           Int      @default(0)
+  longestStreak    Int      @default(0)
+  lastPracticeDate String   @default("")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  interviews       Interview[]
+  reports          Report[]
+  achievements     Achievement[]
+  progressRecords  Progress[]
+  speechSessions   SpeechSession[]
+}
+
+model SpeechSession {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timestamp         DateTime @default(now())
+  transcript        String
+  duration          Int
+  wpm               Int
+  fillerCount       Int
+  fillersBreakdown  Json     // JSON mapping filler counts
+  clarityScore      Int
+  confidenceScore   Int
+  toneAnalysis      String
+  grammarIssues     Json     // JSON list of grammar corrections
+  suggestions       Json     // JSON list of suggestions
+  isTableTopics     Boolean  @default(false)
+  tableTopicsMetadata Json?  // optional structure, relevance, delivery analysis
+
+  @@index([userId])
+}
+
+model Interview {
+  id                 String   @id @default(uuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timestamp          DateTime @default(now())
+  role               String
+  interviewType      String
+  overallScore       Int
+  technicalScore     Int
+  communicationScore Int
+  structureScore     Int
+  strengths          Json     // string array
+  improvements       Json     // string array
+  questions          Question[]
+
+  @@index([userId])
+}
+
+model Question {
+  id                   String   @id @default(uuid())
+  interviewId          String
+  interview            Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  questionText         String
+  sourceResumeSection  String
+  sourceSkill          String
+  reasoning            String
+  answers              Answer[]
+
+  @@index([interviewId])
+}
+
+model Answer {
+  id          String   @id @default(uuid())
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answerText  String
+  score       Int
+  feedback    String
+  wpm         Int
+  fillerCount Int
+
+  @@index([questionId])
+}
+
+model Report {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  reportType  String
+  contentJson Json
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Achievement {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId     String
+  title       String
+  description String
+  icon        String
+  unlockedAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Progress {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      String
+  xpEarned  Int
+  streak    Int
+
+  @@index([userId])
+}
