@@ -29,7 +29,7 @@ const apiFetch = async (endpoint, options = {}, backendUrl = "") => {
   const res = await fetch(`${backendUrl}${endpoint}`, { ...options, headers, credentials: "include" });
   if (!res.ok) {
     let msg = await res.text();
-    try { msg = JSON.parse(msg).error || msg; } catch {}
+    try { msg = JSON.parse(msg).error || msg; } catch { }
     throw new Error(msg);
   }
   return res.json();
@@ -74,10 +74,6 @@ export default function InterviewView({ onSessionComplete, backendUrl, currentUs
   const baseTextRef = useRef("");
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-
-  useEffect(() => {
-    if (currentUser?.name) setDisplayName(currentUser.name);
-  }, [currentUser]);
 
   useEffect(() => () => {
     if (recognitionRef.current) recognitionRef.current.abort();
@@ -343,25 +339,25 @@ export default function InterviewView({ onSessionComplete, backendUrl, currentUs
             <div className="form-group" style={{ marginBottom: "24px" }}>
               <label className="form-label">Interview Mode</label>
               <div className="interview-mode-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                <div 
-                  className={`card ${!useRealTimeVoice ? "active" : ""}`} 
+                <div
+                  className={`card ${!useRealTimeVoice ? "active" : ""}`}
                   style={{ cursor: "pointer", borderColor: !useRealTimeVoice ? "var(--color-accent)" : "var(--border-light)", backgroundColor: !useRealTimeVoice ? "var(--color-accent-glow)" : "var(--bg-card)", transition: "all var(--transition-fast)" }}
                   onClick={() => setUseRealTimeVoice(false)}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "700", marginBottom: "4px" }}>
-                    <MessageSquare size={16} color={!useRealTimeVoice ? "var(--color-accent)" : "var(--text-secondary)"} /> 
+                    <MessageSquare size={16} color={!useRealTimeVoice ? "var(--color-accent)" : "var(--text-secondary)"} />
                     Turn-Based (Groq)
                   </div>
                   <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>Interactive Q&A using Groq AI text-to-speech.</div>
                 </div>
 
-                <div 
-                  className={`card ${useRealTimeVoice ? "active" : ""}`} 
+                <div
+                  className={`card ${useRealTimeVoice ? "active" : ""}`}
                   style={{ cursor: "pointer", borderColor: useRealTimeVoice ? "var(--color-success)" : "var(--border-light)", backgroundColor: useRealTimeVoice ? "var(--color-success-glow)" : "var(--bg-card)", transition: "all var(--transition-fast)" }}
                   onClick={() => setUseRealTimeVoice(true)}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "700", marginBottom: "4px" }}>
-                    <Radio size={16} color={useRealTimeVoice ? "var(--color-success)" : "var(--text-secondary)"} /> 
+                    <Radio size={16} color={useRealTimeVoice ? "var(--color-success)" : "var(--text-secondary)"} />
                     Real-Time Peer Voice (LiveKit)
                   </div>
                   <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>Low-latency voice room. Connect with a peer using a shared Room Name.</div>
