@@ -342,3 +342,72 @@ export const getFullPerformanceHistory = async (userId) => {
     interviews: user?.interviews || [],
   };
 };
+
+export const getAdminStats = async () => {
+  const res = await tryPrisma("getAdminStats", async () => {
+    const [totalUsers, totalInterviews, totalSessions] = await Promise.all([
+      prisma.user.count(),
+      prisma.interview.count(),
+      prisma.speechSession.count(),
+    ]);
+    return { totalUsers, totalInterviews, totalSessions };
+  });
+  if (res.ok) return res.value;
+
+  const db = readJSONDB();
+  const users = Object.values(db.users || {});
+  let totalInterviews = 0;
+  let totalSessions = 0;
+  users.forEach((u) => {
+    totalInterviews += (u.interviews || []).length;
+    totalSessions += (u.speechSessions || []).length;
+  });
+
+  return {
+    totalUsers: users.length,
+    totalInterviews,
+    totalSessions,
+  };
+};
+
+export const getAdminUsers = async (search = "") => {
+  const res = await tryPrisma("getAdminUsers", async () => {
+    const where = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" } },
+            { email: { contains: search, mode: "insensitive" } },
+          ],
+        }
+      : {};
+    const users = await prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    });
+    return users;
+  });
+  if (res.ok) return res.value;
+
+  const db = readJSONDB();
+  const q = search.toLowerCase().trim();
+  const users = Object.values(db.users || {})
+    .filter((u) => !q || u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q))
+    .map((u) => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role || "user",
+      createdAt: u.createdAt || new Date().toISOString(),
+    }));
+
+  return users;
+};
+

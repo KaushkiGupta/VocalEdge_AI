@@ -29,6 +29,13 @@ export const requireAuth = (req, res, next) => {
   }
 };
 
+export const requireAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(403).json({ error: "Access denied. Admin authorization required." });
+  }
+  next();
+};
+
 export const csrfCheck = (req, res, next) => {
   const method = req.method;
   if (["POST", "PUT", "DELETE", "PATCH"].includes(method)) {
@@ -39,3 +46,4 @@ export const csrfCheck = (req, res, next) => {
   }
   next();
 };
+

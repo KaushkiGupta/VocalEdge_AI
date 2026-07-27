@@ -13,6 +13,7 @@ const PracticeView = React.lazy(() => import("./views/PracticeView"));
 const InterviewView = React.lazy(() => import("./views/InterviewView"));
 const ResumeView = React.lazy(() => import("./views/ResumeView"));
 const PresentationView = React.lazy(() => import("./views/PresentationView"));
+const AdminView = React.lazy(() => import("./views/AdminView"));
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "";
 
@@ -80,6 +81,8 @@ export default function App() {
     localStorage.removeItem("vocaledge_user");
   }, []);
 
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+
   const fetchMe = useCallback(async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
@@ -88,9 +91,18 @@ export default function App() {
       });
       if (!response.ok) {
         handleSignOut();
+      } else {
+        const userData = await response.json();
+        setCurrentUser((prev) => {
+          const updated = { ...(prev || {}), ...userData };
+          localStorage.setItem("vocaledge_user", JSON.stringify(updated));
+          return updated;
+        });
       }
     } catch {
       console.warn("Could not check authentication credentials");
+    } finally {
+      setIsAuthLoading(false);
     }
   }, [handleSignOut]);
 
@@ -320,7 +332,34 @@ export default function App() {
                 path="/presentation"
                 element={<PresentationView />}
               />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              <Route
+                path="/admin"
+                element={
+                  isAuthLoading ? (
+                    <div style={{ color: "var(--text-secondary)", padding: "20px" }}>Verifying session...</div>
+                  ) : currentUser?.role === "admin" ? (
+                    <AdminView
+                      backendUrl={BACKEND_URL}
+                      apiKey={apiKey}
+                      setApiKey={setApiKey}
+                      isSavingKey={isSavingKey}
+                      handleSaveApiKey={handleSaveApiKey}
+                      lkUrl={lkUrl}
+                      setLkUrl={setLkUrl}
+                      lkKey={lkKey}
+                      setLkKey={setLkKey}
+                      lkSecret={lkSecret}
+                      setLkSecret={setLkSecret}
+                      lkAgent={lkAgent}
+                      setLkAgent={setLkAgent}
+                      handleSaveLivekit={handleSaveLivekit}
+                    />
+                  ) : (
+                    <Navigate to="/dashboard" replace />
+                  )
+                }
+              />
+              <Route path="*" element={<Navigate to={currentUser?.role === "admin" ? "/admin" : "/dashboard"} replace />} />
             </Routes>
           </Suspense>
         </div>

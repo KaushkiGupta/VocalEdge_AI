@@ -21,14 +21,15 @@ router.post("/register", validate(registerSchema), async (req, res, next) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await createUser(email, passwordHash, name);
     
-    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: "24h" });
+    const role = user.role || "user";
+    const token = jwt.sign({ userId: user.id, email: user.email, role }, JWT_SECRET, { expiresIn: "24h" });
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
-    res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email, role } });
   } catch (err) {
     next(err);
   }
@@ -47,14 +48,15 @@ router.post("/login", validate(loginSchema), async (req, res, next) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: "24h" });
+    const role = user.role || "user";
+    const token = jwt.sign({ userId: user.id, email: user.email, role }, JWT_SECRET, { expiresIn: "24h" });
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
-    res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email, role } });
   } catch (err) {
     next(err);
   }
@@ -72,7 +74,7 @@ router.post("/logout", (req, res) => {
 router.get("/me", requireAuth, async (req, res, next) => {
   try {
     const profile = await getUserProfile(req.user.userId);
-    res.json({ id: req.user.userId, name: profile.name, email: req.user.email });
+    res.json({ id: req.user.userId, name: profile.name, email: req.user.email, role: req.user.role || "user" });
   } catch (err) {
     next(err);
   }

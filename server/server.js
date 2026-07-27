@@ -16,6 +16,7 @@ import practiceRoutes from "./routes/practice.js";
 import interviewRoutes from "./routes/interview.js";
 import rtcRoutes from "./routes/rtc.js";
 import dashboardRoutes from "./routes/dashboard.js";
+import adminRoutes from "./routes/admin.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -64,6 +65,7 @@ app.use(
 
 // ─── MOUNT ROUTERS ───────────────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/interview", interviewRoutes);
 app.use("/api/rtc", rtcRoutes);

@@ -190,7 +190,7 @@ body {
   font-family: var(--font-body);
   font-weight: 700;
   font-size: 18px;
-  color: var(--text-inverse);
+  color: #ffffff;
   letter-spacing: -0.3px;
   display: flex;
   align-items: center;
@@ -985,4 +985,92 @@ textarea.form-control {
     padding: 24px 16px !important;
   }
 }
+
+/* ─── Dark Theme Overrides ────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg-primary: #121417;
+  --bg-secondary: #1a221f;
+  --bg-card: #1c2026;
+  --bg-card-hover: #252b33;
+  --bg-tertiary: #282e38;
+  --bg-input: #232830;
+
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(255, 255, 255, 0.2);
+
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --text-inverse: #1a1a1a;
+
+  --color-accent: #34d399;
+  --color-accent-hover: #10b981;
+  --color-accent-glow: rgba(52, 211, 153, 0.12);
+  --color-accent-glow-strong: rgba(52, 211, 153, 0.2);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* ─── Settings Modal Tabs & Cards ────────────────────────────────────────── */
+.settings-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 20px;
+}
+
+.settings-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.settings-tab:hover {
+  color: var(--text-primary);
+}
+
+.settings-tab.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+.theme-option-card {
+  flex: 1;
+  padding: 14px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.theme-option-card:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
+}
+
+.theme-option-card.active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-glow);
+  color: var(--color-accent);
+}
+
 

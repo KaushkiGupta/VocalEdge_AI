@@ -21,13 +21,15 @@ export default function Sidebar({
   sidebarOpen,
   setSidebarOpen
 }) {
-  const navItems = [
-    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { to: "/practice", label: "Speech Practice", icon: MessageSquare },
-    { to: "/interview", label: "Mock Interview", icon: Briefcase },
-    { to: "/resume", label: "Resume Scan", icon: FileText },
-    { to: "/presentation", label: "Pitch Coach", icon: Video },
-  ];
+  const navItems = currentUser?.role === "admin"
+    ? [{ to: "/admin", label: "Admin Control Center", icon: ShieldCheck }]
+    : [
+        { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { to: "/practice", label: "Speech Practice", icon: MessageSquare },
+        { to: "/interview", label: "Mock Interview", icon: Briefcase },
+        { to: "/resume", label: "Resume Scan", icon: FileText },
+        { to: "/presentation", label: "Pitch Coach", icon: Video },
+      ];
 
   return (
     <div className={`sidebar ${sidebarOpen ? "open" : "collapsed"}`}>
@@ -98,26 +100,6 @@ export default function Sidebar({
       </div>
 
       <div className="sidebar-footer">
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            fontSize: "11px",
-            padding: "8px",
-            borderRadius: "8px",
-            cursor: "pointer",
-            backgroundColor: keyStatus ? "rgba(34,133,74,0.15)" : "rgba(220,38,38,0.15)",
-            border: "1px solid",
-            borderColor: keyStatus ? "rgba(34,133,74,0.3)" : "rgba(220,38,38,0.3)",
-            color: keyStatus ? "#22854a" : "#dc2626",
-          }}
-          onClick={() => setShowSettings(true)}
-        >
-          {keyStatus ? <ShieldCheck size={14} /> : <ShieldAlert size={14} />}
-          <strong>{keyStatus ? "Groq Connected" : "Groq Config Required"}</strong>
-        </div>
-
         <div
           className="sidebar-item"
           onClick={() => setShowSettings(true)}
