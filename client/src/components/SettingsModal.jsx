@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { X, Settings, User, Palette, Shield, Sun, Moon, Monitor, Check } from "lucide-react";
 import { THEME_KEY, setThemePreference } from "../utils/theme";
 
@@ -7,27 +7,23 @@ export default function SettingsModal({ isOpen, onClose }) {
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "system");
 
   // User details state (read-only until backend persistence is available)
-  const [userData, setUserData] = useState({ name: "User", email: "user@vocaledge.ai" });
-  const [savedFeedback, setSavedFeedback] = useState("");
+const [savedFeedback, setSavedFeedback] = useState("");
 
-  // Privacy toggles state
-  const [saveHistory, setSaveHistory] = useState(() => {
-    return localStorage.getItem("vocaledge_privacy_history") !== "false";
-  });
+const userData = (() => {
+  try {
+    const saved = localStorage.getItem("vocaledge_user");
+    return saved
+      ? JSON.parse(saved)
+      : { name: "User", email: "user@vocaledge.ai" };
+  } catch {
+    return { name: "User", email: "user@vocaledge.ai" };
+  }
+})();
 
-  useEffect(() => {
-    if (isOpen) {
-      const saved = localStorage.getItem("vocaledge_user");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          setUserData(parsed);
-        } catch {
-          // Fallback if parsing fails
-        }
-      }
-    }
-  }, [isOpen]);
+// Privacy toggles state
+const [saveHistory, setSaveHistory] = useState(() => {
+  return localStorage.getItem("vocaledge_privacy_history") !== "false";
+});
 
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
