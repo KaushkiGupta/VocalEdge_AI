@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Users, Briefcase, MessageSquare, Search, ShieldCheck, ShieldAlert, Cpu, Activity } from "lucide-react";
 
 export default function AdminView({
@@ -23,15 +23,33 @@ export default function AdminView({
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const fetchAdminData = useCallback(async () => {
+  useEffect(() => {
+  let cancelled = false;
+
+  const loadAdminData = async () => {
     setLoading(true);
+
     try {
-      const headers = { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" };
+      const headers = {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      };
 
       const [statsRes, usersRes] = await Promise.all([
-        fetch(`${backendUrl}/api/admin/stats`, { headers, credentials: "include" }),
-        fetch(`${backendUrl}/api/admin/users?search=${encodeURIComponent(searchQuery)}`, { headers, credentials: "include" }),
+        fetch(`${backendUrl}/api/admin/stats`, {
+          headers,
+          credentials: "include",
+        }),
+        fetch(
+          `${backendUrl}/api/admin/users?search=${encodeURIComponent(searchQuery)}`,
+          {
+            headers,
+            credentials: "include",
+          }
+        ),
       ]);
+
+      if (cancelled) return;
 
       if (statsRes.ok) {
         const statsData = await statsRes.json();
@@ -43,15 +61,22 @@ export default function AdminView({
         setUsersList(usersData.users || []);
       }
     } catch (err) {
-      console.warn("Could not load admin stats:", err.message);
+      if (!cancelled) {
+        console.warn("Could not load admin stats:", err.message);
+      }
     } finally {
-      setLoading(false);
+      if (!cancelled) {
+        setLoading(false);
+      }
     }
-  }, [backendUrl, searchQuery]);
+  };
 
-  useEffect(() => {
-    fetchAdminData();
-  }, [fetchAdminData]);
+  loadAdminData();
+
+  return () => {
+    cancelled = true;
+  };
+}, [backendUrl, searchQuery]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
